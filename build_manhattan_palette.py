@@ -4,14 +4,12 @@ import requests
 import numpy as np
 from PIL import Image
 
-# -----------------------
-# CONFIG
-# -----------------------
+
 DATASET_ID = "9nt8-h7nd"  # 2020 NTAs
-# IMPORTANT: No $select on GeoJSON, it causes 400 errors
+
 NTA_GEOJSON_URL = f"https://data.cityofnewyork.us/resource/{DATASET_ID}.geojson?$limit=5000"
 
-TARGET_BORO = "Manhattan"  # we'll try this first, then fall back to code prefix MN
+TARGET_BORO = "Manhattan"  
 
 DOWNLOAD_TILES = True
 ZOOM = 16
@@ -24,9 +22,7 @@ MAPBOX_STYLE = "mapbox/satellite-v9"
 
 SOCRATA_TOKEN = os.getenv("SOCRATA_APP_TOKEN")  # optional
 
-# -----------------------
-# HELPERS
-# -----------------------
+
 def http_get(url, params=None):
     headers = {}
     if SOCRATA_TOKEN:
@@ -36,7 +32,7 @@ def http_get(url, params=None):
     return r
 
 def approx_polygon_centroid(coords):
-    # coords: list of (lon,lat)
+
     if not coords:
         raise ValueError("empty coords")
     if coords[0] != coords[-1]:
@@ -64,7 +60,7 @@ def get_outer_ring(geometry):
     gtype = geometry.get("type")
     coords = geometry.get("coordinates")
     if gtype == "Polygon":
-        # choose the longest ring
+    
         ring = max(coords, key=lambda r: len(r))
         return [(float(x), float(y)) for x, y in ring]
     elif gtype == "MultiPolygon":
@@ -102,9 +98,7 @@ def average_color(img: Image.Image):
 def to_hex(r:int,g:int,b:int):
     return f"#{r:02x}{g:02x}{b:02x}"
 
-# -----------------------
-# MAIN
-# -----------------------
+
 def main():
     TILE_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -113,14 +107,14 @@ def main():
         print("No features returned. Try again with a SOCRATA_APP_TOKEN or later.")
         return
 
-    # Flexible property accessors
+  
     def prop(props, keylist, default=""):
         for k in keylist:
             if k in props and props[k] not in (None, ""):
                 return props[k]
         return default
 
-    # Try filter by borough name first
+    
     manhattan_feats = []
     for f in feats:
         p = f.get("properties", {})
@@ -128,7 +122,7 @@ def main():
         if boro.lower() == TARGET_BORO.lower():
             manhattan_feats.append(f)
 
-    # Fallback: filter by NTA code prefix 'MN'
+
     if not manhattan_feats:
         print("No features matched borough name; falling back to NTA code prefix 'MN'…")
         for f in feats:
