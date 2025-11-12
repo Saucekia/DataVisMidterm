@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Colors of Manhattan</title>
+  <title>Color of Manhattan</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -105,7 +105,7 @@
 <body>
 
   <header class="container">
-    <h1>Colors of Manhattan</h1>
+    <h1>Color of Manhattan</h1>
     <p class="lead">A map of Manhattan Neighborhood Tabulation Areas, filled with the average color sampled from overhead imagery. Hover for the neighborhood, hex, and the exact tile used.</p>
   </header>
 
@@ -316,7 +316,7 @@
         this.dataset.hexBoost = boosted;
         this.dataset.candidates = JSON.stringify(meta.candidates);
       })
-      .attr("fill", function(){ return this.dataset.hexBoost; }) // Boost ON by default
+      .attr("fill", function(){ return this.dataset.hexBoost; }) 
       .on("mousemove", async function(event){
         const using = d3.select(this).attr("fill");
         const name = this.dataset.name || "Unknown";
