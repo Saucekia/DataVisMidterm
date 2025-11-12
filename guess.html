@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Colors of Manhattan — Guess the Neighborhood</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  
+
+  <style>
+
+    :root{
+      --bg:#f6f7f9; --panel:#ffffff; --border:#e3e6eb;
+      --ink:#1b1d21; --muted:#5e6470;
+      --accent:#0e7a53; --accent-ink:#ffffff; --accent-weak:#eaf5f1;
+      --danger:#b42318; --success:#0f7a53;
+    }
+    html, body{height:100%;margin:0;background:var(--bg);color:var(--ink);
+      font:15px/1.55 ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;}
+    .container{max-width:960px;margin:0 auto;padding:18px 16px 40px;}
+    header{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:14px;}
+    h1{margin:0;font-size:24px;font-weight:800;color:var(--accent);letter-spacing:.2px;}
+    .back{color:var(--accent);text-decoration:none;font-weight:700;border:1px solid #d7ece4;background:var(--accent-weak);
+      padding:6px 10px;border-radius:10px;}
+    .back:hover{text-decoration:underline;}
+    .card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:16px;
+      box-shadow:0 10px 26px rgba(16,24,40,.04);}
+    .top{display:grid;grid-template-columns: 1fr auto;align-items:center;gap:16px;}
+    .swatch{height:120px;border-radius:12px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;}
+    .hexlabel{background:rgba(255,255,255,.92);border:1px solid var(--border);padding:6px 10px;border-radius:10px;font-weight:800;letter-spacing:.5px;}
+    .stats{display:grid;grid-auto-flow:column;gap:10px;align-items:center;}
+    .pill{background:var(--accent-weak);color:var(--accent);border:1px solid #d5ebe2;font-weight:800;border-radius:999px;padding:6px 12px;font-size:12px;text-align:center;}
+
+    /* --- Toolbar (grid for perfect wrapping) --- */
+    .toolbar{
+      display:grid;
+      grid-template-columns: 1fr auto;   /* left = mode, right = actions */
+      align-items:center;
+      gap:12px;
+      margin-top:14px;
+    }
+    .mode{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      background: rgba(255,255,255,0.9);
+      padding: 6px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      flex-wrap:wrap;
+    }
+    .toolbar .actions{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-self:end;
+    }
+
+    /* Toggle visuals (labels are OUTSIDE the pill now) */
+    .label { color:var(--muted); font-size:12px; }
+    .tag { font-weight:800; font-size:12px; color:var(--muted); }
+    .tag.right { color:var(--accent); }
+
+    .toggle{
+      position:relative;
+      width:74px;
+      height:32px;
+      background:#eef4f1;
+      border:1px solid var(--border);
+      border-radius:999px;
+      cursor:pointer;
+      flex: 0 0 auto; /* don't shrink */
+    }
+    .toggle input{ display:none; }
+    .knob{
+      position:absolute; top:2px; left:2px;
+      width:28px; height:28px; background:#fff; border-radius:50%;
+      transition:transform .18s ease, background .18s ease, box-shadow .18s ease;
+      box-shadow:0 2px 6px rgba(0,0,0,.12);
+    }
+    .toggle input:checked + .knob{
+      transform:translateX(42px);
+      background:var(--accent);
+      box-shadow:0 3px 10px rgba(14,122,83,.4);
+    }
+
+    /* Mobile: stack nicely & hide side labels if super narrow */
+    @media (max-width: 720px){
+      .toolbar{ grid-template-columns: 1fr; }
+      .toolbar .actions{ justify-self:stretch; }
+    }
+    @media (max-width: 420px){
+      .mode .tag{ display:none; } /* keep only the pill on tiny screens */
+    }
+
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:12px;font-weight:800;cursor:pointer;
+      border:1px solid var(--border);background:var(--panel);color:var(--ink);transition:box-shadow .15s.ease,transform .05s.ease;}
+    .btn:hover{box-shadow:0 8px 20px rgba(0,0,0,.06);} .btn:active{transform:translateY(1px);}
+    .btn.primary{background:var(--accent);color:var(--accent-ink);border-color:transparent;}
+    .muted{color:var(--muted);font-size:12px;}
+    .choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;}
+    .choice{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid var(--border);border-radius:12px;
+      cursor:pointer;background:#fff;font-weight:700;transition:box-shadow .12s ease,transform .04s ease,border-color .12s ease;}
+    .choice:hover{box-shadow:0 8px 18px rgba(0,0,0,.06);} .choice:active{transform:translateY(1px);}
+    .choice .key{width:24px;height:24px;border-radius:8px;background:#f2f4f7;color:#222;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;}
+    .choice.correct{border-color:#bfe6d8;background:#effaf5;} .choice.incorrect{border-color:#f2c6c3;background:#fff1ef;}
+    .result{margin-top:14px;display:grid;grid-template-columns:1fr 280px;gap:12px;align-items:start;}
+    .msg{font-weight:800;} .msg.good{color:var(--success);} .msg.bad{color:var(--danger);}
+    .thumb{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:#fafafa;display:none;}
+    .thumb img{width:100%;height:auto;display:block;}
+
+    */
+  </style>
+
+
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Guess the Manhattan Neighborhood</h1>
+      <a class="back" href="map.html">← Back to map</a>
+    </header>
+
+    <div class="card">
+      <div class="top">
+        <div class="swatch" id="swatch">
+          <div class="hexlabel" id="hexlabel">#XXXXXX</div>
+        </div>
+        <div class="stats">
+          <div class="pill">Score: <span id="score">0</span></div>
+          <div class="pill">Streak: <span id="streak">0</span></div>
+          <div class="pill">Round: <span id="round">1</span></div>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <div class="mode">
+          <span class="label">Color mode</span>
+          <span class="tag left">True</span>
+          <label class="toggle" title="Toggle Vibrant / True (M)">
+            <input id="modeToggle" type="checkbox" />
+            <span class="knob"></span>
+          </label>
+          <span class="tag right">Vibrant</span>
+        </div>
+
+        <div class="actions">
+          <button id="newRound" class="btn primary">Next color ↻</button>
+          <span class="muted"></span>
+        </div>
+      </div>
+
+      <div class="choices" id="choices"></div>
+
+      <div class="result">
+        <div>
+          <div id="message" class="msg muted"></div>
+          <div id="detail" class="muted"></div>
+        </div>
+        <div class="thumb" id="thumb"><img alt="tile image" id="thumbImg" /></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script>
+  (async function(){
+    // --------- config ----------
+    const TILE_DIR = "tiles_manhattan";
+    const START_VIBRANT = true; // default mode
+    // ---------------------------
+
+    // color utils
+    const clamp=(x,a,b)=>Math.min(b,Math.max(a,x));
+    function hexToRgb(hex){ const m=/^#?([0-9a-f]{6})$/i.exec(String(hex||'').trim()); if(!m) return {r:119,g:122,b:128}; const n=parseInt(m[1],16); return { r:(n>>16)&255, g:(n>>8)&255, b:n&255 };}
+    function rgbToHex(r,g,b){ return "#" + [r,g,b].map(v=>clamp(Math.round(v),0,255).toString(16).padStart(2,"0")).join(""); }
+    function rgbToHsl(r,g,b){ r/=255; g/=255; b/=255; const mx=Math.max(r,g,b), mn=Math.min(r,g,b); let h,s,l=(mx+mn)/2, d=mx-mn;
+      if(d===0){h=0;s=0;} else { s = l>0.5 ? d/(2-mx-mn) : d/(mx+mn); switch(mx){case r:h=(g-b)/d+(g<b?6:0);break;case g:h=(b-r)/d+2;break;case b:h=(r-g)/d+4;break;} h/=6; }
+      return {h,s,l}; }
+    function hslToRgb(h,s,l){ const hue2rgb=(p,q,t)=>{ if(t<0)t+=1; if(t>1)t-=1; if(t<1/6)return p+(q-p)*6*t; if(t<1/2)return q; if(t<2/3)return p+(q-p)*(2/3-t)*6; return p; };
+      let r,g,b; if(s===0){r=g=b=l;} else { const q=l<0.5?l*(1+s):l+s-l*s; const p=2*l-q; r=hue2rgb(p,q,h+1/3); g=hue2rgb(p,q,h); b=hue2rgb(p,q,h-1/3); }
+      return { r:Math.round(r*255), g:Math.round(g*255), b:Math.round(b*255) }; }
+    function adjustHex(hex, vibPct, conPct){
+      const {r,g,b}=hexToRgb(hex), c=conPct/100;
+      const rc=clamp((r-128)*c+128,0,255), gc=clamp((g-128)*c+128,0,255), bc=clamp((b-128)*c+128,0,255);
+      let {h,s,l}=rgbToHsl(rc,gc,bc); const vib=vibPct/100, add=(vib-1)*(1-s); s=clamp(s+add,0,1);
+      const hue2rgb=(p,q,t)=>{ if(t<0)t+=1; if(t>1)t-=1; if(t<1/6)return p+(q-p)*6*t; if(t<1/2)return q; if(t<2/3)return p+(q-p)*(2/3-t)*6; return p; };
+      const q = l<0.5 ? l*(1+s) : l + s - l*s, p = 2*l - q;
+      const R = (()=>{ let t=h+1/3; if(t<0)t+=1; if(t>1)t-=1; return t<1/6?p+(q-p)*6*t: t<1/2?q: t<2/3?p+(q-p)*(2/3-t)*6: p; })();
+      const G = (()=>{ let t=h;       if(t<0)t+=1; if(t>1)t-=1; return t<1/6?p+(q-p)*6*t: t<1/2?q: t<2/3?p+(q-p)*(2/3-t)*6: p; })();
+      const B = (()=>{ let t=h-1/3; if(t<0)t+=1; if(t>1)t-=1; return t<1/6?p+(q-p)*6*t: t<1/2?q: t<2/3?p+(q-p)*(2/3-t)*6: p; })();
+      return rgbToHex(Math.round(R*255), Math.round(G*255), Math.round(B*255));
+    }
+    const slug = s => String(s||"").trim().toLowerCase().replace(/&/g," and ").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");
+    function resolveImagePath(candidates){
+      return new Promise((resolve)=>{
+        if(!candidates.length) return resolve(null);
+        let i=0; const img=new Image();
+        img.onload=()=>resolve(candidates[i]);
+        img.onerror=()=>{ i++; if(i<candidates.length){ img.src=candidates[i]; } else resolve(null); };
+        img.src=candidates[i];
+      });
+    }
+    function sampleN(arr, n, avoidIndex){
+      const idx = d3.range(arr.length);
+      if (avoidIndex != null) idx.splice(avoidIndex,1);
+      d3.shuffle(idx);
+      return idx.slice(0, n).map(i=>arr[i]);
+    }
+
+    // load + prep data
+    let rows = await d3.csv("manhattan_colors.csv");
+    rows = rows.map(r=>{
+      const code = (r.nta2020||"").toUpperCase().trim();
+      const name = (r.ntaname||r.name||"").trim();
+      const hex  = (r.hex||"#777a80").trim();
+      if(!code || !name) return null;
+      const baseSlug = slug(name);
+      const candidates = [];
+      if(r.filename && r.filename.trim()) candidates.push(`${TILE_DIR}/${r.filename.trim()}`);
+      candidates.push(
+        `${TILE_DIR}/${code}_${baseSlug}.jpg`,
+        `${TILE_DIR}/${code}_${baseSlug}.jpeg`,
+        `${TILE_DIR}/${code}_${baseSlug}.png`,
+        `${TILE_DIR}/${code}.jpg`,
+        `${TILE_DIR}/${code}.jpeg`,
+        `${TILE_DIR}/${code}.png`
+      );
+      const boosted = adjustHex(hex, 135, 118);
+      return { code, name, hex, boosted, candidates };
+    }).filter(Boolean);
+
+    if (rows.length < 4){
+      alert("Need at least 4 neighborhoods in manhattan_colors.csv for the quiz.");
+      return;
+    }
+
+    // DOM hooks
+    const swatch = document.getElementById("swatch");
+    const hexlabel = document.getElementById("hexlabel");
+    const choicesEl = document.getElementById("choices");
+    const scoreEl = document.getElementById("score");
+    const streakEl = document.getElementById("streak");
+    const roundEl = document.getElementById("round");
+    const msgEl = document.getElementById("message");
+    const detailEl = document.getElementById("detail");
+    const thumb = document.getElementById("thumb");
+    const thumbImg = document.getElementById("thumbImg");
+    const nextBtn = document.getElementById("newRound");
+    const modeToggle = document.getElementById("modeToggle");
+
+    // state
+    let useBoosted = START_VIBRANT;
+    modeToggle.checked = useBoosted;
+
+    let score=0, streak=0, round=1;
+    let current=null;
+
+    function paintStats(){ scoreEl.textContent=score; streakEl.textContent=streak; roundEl.textContent=round; }
+
+    function renderRound(){
+      choicesEl.innerHTML = "";
+      thumb.style.display="none";
+      detailEl.textContent="";
+      msgEl.className = "msg muted";
+      msgEl.textContent = "What Neighborhood is this?????";
+
+      const answerIndex = Math.floor(Math.random()*rows.length);
+      const correct = rows[answerIndex];
+      const distractors = sampleN(rows, 3, answerIndex);
+      const options = d3.shuffle([correct, ...distractors]);
+      current = { answerIndex: options.indexOf(correct), options, correctRow: correct };
+
+      const displayHex = useBoosted ? correct.boosted : correct.hex;
+      swatch.style.background = displayHex;
+      hexlabel.textContent = displayHex.toUpperCase();
+
+      options.forEach((row, i)=>{
+        const div = document.createElement("button");
+        div.type = "button";
+        div.className = "choice";
+        div.setAttribute("data-idx", i);
+        div.innerHTML = `<span class="key">${i+1}</span> <span>${row.name}</span>`;
+        div.addEventListener("click", ()=> choose(i));
+        choicesEl.appendChild(div);
+      });
+    }
+
+    async function choose(i){
+      if (!current) return;
+      const btns = [...choicesEl.querySelectorAll(".choice")];
+      btns.forEach(b=>b.disabled=true);
+
+      const correctIdx = current.answerIndex;
+      const correct = current.options[correctIdx];
+
+      btns.forEach((b, j)=>{ if (j===correctIdx) b.classList.add("correct"); });
+      if (i!==correctIdx) { btns[i].classList.add("incorrect"); msgEl.className="msg bad"; msgEl.textContent="Nope!"; streak=0; }
+      else { msgEl.className="msg good"; msgEl.textContent="Correct!"; score+=1; streak+=1; }
+
+      detailEl.innerHTML = `<strong>${correct.name}</strong> — NTA ${correct.code}`;
+      const found = await resolveImagePath(correct.candidates);
+      if (found){ thumbImg.src = found; thumb.style.display="block"; } else { thumb.style.display="none"; }
+
+      paintStats();
+    }
+
+    function nextRound(){ round+=1; paintStats(); renderRound(); }
+
+    // toggle mode (switch + hotkey M)
+    function toggleMode(){
+      useBoosted = !useBoosted;
+      modeToggle.checked = useBoosted;
+      if (current){
+        const correct = current.options[current.answerIndex];
+        const displayHex = useBoosted ? correct.boosted : correct.hex;
+        swatch.style.background = displayHex;
+        hexlabel.textContent = displayHex.toUpperCase();
+      }
+    }
+    modeToggle.addEventListener("change", toggleMode);
+    window.addEventListener("keydown", (e)=>{
+      if (e.key.toLowerCase() === "m") toggleMode();
+      else if (e.key >= "1" && e.key <= "4"){
+        const idx = +e.key - 1;
+        const btns = choicesEl.querySelectorAll(".choice");
+        if (btns[idx]) btns[idx].click();
+      } else if (e.key === "Enter"){
+        nextBtn.click();
+      }
+    });
+
+    nextBtn.addEventListener("click", nextRound);
+
+    // init
+    paintStats();
+    renderRound();
+  })();
+  </script>
+</body>
+</html>

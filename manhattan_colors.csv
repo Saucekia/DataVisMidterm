@@ -1,0 +1,39 @@
+nta2020,ntaname,borough,lat,lon,r,g,b,hex
+MN0101,Financial District-Battery Park City,Manhattan,40.708598,-74.010873,55,63,70,#373f46
+MN0102,Tribeca-Civic Center,Manhattan,40.717306,-74.007233,87,92,93,#575c5d
+MN0191,The Battery-Governors Island-Ellis Island-Liberty Island,Manhattan,40.688786,-74.019077,102,100,90,#66645a
+MN0201,SoHo-Little Italy-Hudson Square,Manhattan,40.723536,-74.001719,106,110,109,#6a6e6d
+MN0202,Greenwich Village,Manhattan,40.730681,-73.995684,90,93,94,#5a5d5e
+MN0203,West Village,Manhattan,40.734839,-74.005909,109,111,109,#6d6f6d
+MN0301,Chinatown-Two Bridges,Manhattan,40.712859,-73.993664,100,102,100,#646664
+MN0302,Lower East Side,Manhattan,40.716967,-73.983839,100,102,99,#646663
+MN0303,East Village,Manhattan,40.725972,-73.982125,102,103,102,#666766
+MN0401,Chelsea-Hudson Yards,Manhattan,40.749383,-74.001149,100,103,101,#646765
+MN0402,Hell's Kitchen,Manhattan,40.764169,-73.992400,116,119,118,#747776
+MN0501,Midtown South-Flatiron-Union Square,Manhattan,40.744042,-73.989752,88,93,95,#585d5f
+MN0502,Midtown-Times Square,Manhattan,40.757801,-73.981609,64,71,78,#40474e
+MN0601,Stuyvesant Town-Peter Cooper Village,Manhattan,40.731822,-73.976597,96,98,97,#606261
+MN0602,Gramercy,Manhattan,40.736824,-73.984053,92,96,97,#5c6061
+MN0603,Murray Hill-Kips Bay,Manhattan,40.744270,-73.975970,91,95,95,#5b5f5f
+MN0604,East Midtown-Turtle Bay,Manhattan,40.756133,-73.968503,77,82,86,#4d5256
+MN0661,United Nations,Manhattan,40.750375,-73.967343,96,98,94,#60625e
+MN0701,Upper West Side-Lincoln Square,Manhattan,40.774848,-73.984695,98,101,101,#626565
+MN0702,Upper West Side (Central),Manhattan,40.787703,-73.975934,95,99,100,#5f6364
+MN0703,Upper West Side-Manhattan Valley,Manhattan,40.799247,-73.967306,99,102,102,#636666
+MN0801,Upper East Side-Lenox Hill-Roosevelt Island,Manhattan,40.761920,-73.949933,81,83,81,#515351
+MN0802,Upper East Side-Carnegie Hill,Manhattan,40.774730,-73.961174,84,88,91,#54585b
+MN0803,Upper East Side-Yorkville,Manhattan,40.777295,-73.948772,85,90,93,#555a5d
+MN0901,Morningside Heights,Manhattan,40.809459,-73.961765,98,102,101,#626665
+MN0902,Manhattanville-West Harlem,Manhattan,40.818023,-73.953822,111,112,109,#6f706d
+MN0903,Hamilton Heights-Sugar Hill,Manhattan,40.827020,-73.948465,112,115,114,#707372
+MN1001,Harlem (South),Manhattan,40.804332,-73.951301,113,115,114,#717372
+MN1002,Harlem (North),Manhattan,40.818927,-73.940908,113,115,114,#717372
+MN1101,East Harlem (South),Manhattan,40.790010,-73.945750,111,112,110,#6f706e
+MN1102,East Harlem (North),Manhattan,40.801613,-73.937442,107,109,107,#6b6d6b
+MN1191,Randall's Island,Manhattan,40.791001,-73.924597,110,108,101,#6e6c65
+MN1201,Washington Heights (South),Manhattan,40.840903,-73.941536,100,102,102,#646666
+MN1202,Washington Heights (North),Manhattan,40.856473,-73.933452,98,99,100,#626364
+MN1203,Inwood,Manhattan,40.866053,-73.919323,116,117,115,#747573
+MN1291,Highbridge Park,Manhattan,40.846598,-73.930233,100,99,95,#64635f
+MN1292,Inwood Hill Park,Manhattan,40.872377,-73.924342,73,66,65,#494241
+MN6491,Central Park,Manhattan,40.782473,-73.965559,82,83,79,#52534f

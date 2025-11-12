@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Colors of Manhattan</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+
+  <style>
+   
+    :root{
+      --bg:#f6f7f9; --panel:#ffffff; --border:#e3e6eb;
+      --ink:#1b1d21; --muted:#5e6470;
+      --accent:#0e7a53; --accent-ink:#ffffff; --accent-weak:#eaf5f1;
+    }
+    html, body {
+      height:100%; margin:0; background:var(--bg); color:var(--ink);
+      font:15px/1.55 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    }
+    .container { max-width:1080px; margin:0 auto; padding:0 16px; }
+    header.container { padding-top:28px; padding-bottom:10px; }
+    h1 { margin:0 6px 6px 0; font-weight:800; font-size:26px; letter-spacing:.2px; color:var(--accent); }
+    .lead { margin:0; color:var(--muted); font-size:15px; }
+
+    .intro {
+      margin-top:16px; margin-bottom:18px; background:var(--panel);
+      border:1px solid var(--border); border-radius:16px; padding:18px 18px 14px;
+      box-shadow:0 10px 26px rgba(16,24,40,.04);
+    }
+    .intro h2 { margin:0 0 8px; font-size:18px; font-weight:800; color:var(--ink); }
+    .intro p { margin:0 0 8px; color:var(--muted); }
+    .chips { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+    .chip { font-size:12px; color:var(--accent); background:var(--accent-weak);
+      border:1px solid #d5ebe2; border-radius:999px; padding:6px 10px; font-weight:600; }
+
+    .actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+    .btn {
+      display:inline-flex; align-items:center; gap:8px;
+      padding:8px 12px; border-radius:12px; font-weight:700; cursor:pointer;
+      border:1px solid var(--border); background:var(--panel); color:var(--ink);
+      transition: box-shadow .15s ease, transform .05s ease;
+    }
+    .btn:hover { box-shadow:0 8px 20px rgba(0,0,0,.06); }
+    .btn:active { transform: translateY(1px); }
+    .btn.primary { background:var(--accent); color:var(--accent-ink); border-color:transparent; }
+    .btn.linklike { color:var(--accent); border-color:#d7ece4; background:var(--accent-weak); }
+
+    #map {
+      width:100%; height:72vh; background:var(--panel); border:1px solid var(--border); border-radius:16px;
+      position:relative; overflow:hidden; box-shadow:0 10px 26px rgba(16,24,40,.04);
+    }
+    .toolbar {
+      position:absolute; top:10px; left:10px; right:10px; z-index:5;
+      display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+      background:rgba(255,255,255,.94); backdrop-filter:saturate(120%) blur(4px);
+      border:1px solid var(--border); border-radius:12px; padding:8px 10px;
+      box-shadow:0 8px 18px rgba(0,0,0,.06);
+    }
+    .label { color:var(--muted); font-size:12px; white-space:nowrap; }
+    .spacer { flex:1 1 auto; }
+    .toggleWrap { display:flex; align-items:center; gap:8px; }
+    .toggle { position:relative; width:62px; height:30px; background:#eef4f1;
+      border:1px solid var(--border); border-radius:999px; cursor:pointer; }
+    .toggle input { display:none; }
+    .knob { position:absolute; top:2px; left:2px; width:26px; height:26px; background:#fff;
+      border-radius:50%; transition: transform .18s ease, background .18s ease, box-shadow .18s ease;
+      box-shadow:0 2px 6px rgba(0,0,0,.12); }
+    .toggle input:checked + .knob { transform: translateX(30px); background:var(--accent);
+      box-shadow:0 3px 10px rgba(14,122,83,.4); }
+    .toggleNote { font-size:12px; color:var(--muted); }
+    .toggleNote strong { color:var(--accent); }
+
+    .nta { vector-effect: non-scaling-stroke; stroke: rgba(0,0,0,.35); stroke-width:1px; }
+    .nta:hover { stroke: rgba(0,0,0,.85); stroke-width:2px; filter:saturate(1.08) brightness(1.02); }
+
+    .tooltip {
+      position: fixed; pointer-events:none; z-index: 10;
+      background: #151826; color:#fff; border:1px solid rgba(0,0,0,.5);
+      box-shadow: 0 10px 24px rgba(0,0,0,.35);
+      padding:10px; border-radius:12px; min-width:240px; max-width:320px;
+    }
+    .tooltip .top { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+    .tooltip .sw { width:12px; height:12px; border-radius:3px; border:1px solid rgba(255,255,255,.65); }
+    .tooltip .name { font-weight:700; font-size:13px; line-height:1.2; }
+    .tooltip code { color:#a8d7c5; }
+    .tooltip img { width:100%; height:auto; display:block; border-radius:10px;
+                   border:1px solid rgba(255,255,255,.2); margin-top:8px; }
+
+    .legend { color:var(--muted); }
+    .legend strong { color:var(--ink); }
+    footer.container { color:var(--muted); padding:14px 16px 42px; }
+    a { color:var(--accent); text-decoration:none; }
+    a:hover{ text-decoration:underline; }
+  </style>
+
+
+</head>
+
+
+
+<body>
+
+  <header class="container">
+    <h1>Colors of Manhattan</h1>
+    <p class="lead">A map of Manhattan Neighborhood Tabulation Areas, filled with the average color sampled from overhead imagery. Hover for the neighborhood, hex, and the exact tile used.</p>
+  </header>
+
+  <section class="container intro">
+    <h2>What is this??</h2>
+    <p>
+      This project visualizes the literal palette of Manhattan. For each NTA, a tile was
+      captured and averaged into a single color, then painted onto each neighborhood tile. Hover to discover.
+    </p>
+    <a class="btn primary" href="guess.html">Play ColorQuiz</a>
+    <div class="chips">
+
+
+      
+    </div>
+    <div class="actions">
+      
+      
+    </div>
+  </section>
+
+  <section class="container">
+    <div id="map">
+      <div class="toolbar">
+        <span class="label">Color mode</span>
+        <div class="toggleWrap">
+          <span class="toggleNote">True</span>
+          <label class="toggle" title="Toggle color boost">
+            <input id="boostToggle" type="checkbox" checked />
+            <span class="knob"></span>
+          </label>
+          <span class="toggleNote"><strong>Vibrant</strong></span>
+        </div>
+        <div class="spacer"></div>
+        <button id="resetView" class="btn" style="padding:6px 10px;">Reset view</button>
+      </div>
+    </div>
+    <div id="tooltip" class="tooltip" style="display:none"></div>
+
+    <p class="legend" style="margin:10px 0 24px;">
+      
+    </p>
+  </section>
+
+  
+
+  <footer class="container">
+  
+    
+  </footer>
+
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script>
+  (async function(){
+    const BOOST_VIBRANCE = 135;  // %
+    const BOOST_CONTRAST = 118;  // %
+    const TILE_DIR = "tiles_manhattan";
+
+    
+    const clamp = (x, lo, hi) => Math.min(hi, Math.max(lo, x));
+    function hexToRgb(hex){
+      const m = /^#?([0-9a-f]{6})$/i.exec(String(hex||'').trim());
+      if(!m) return {r:119,g:122,b:128};
+      const n = parseInt(m[1],16);
+      return { r:(n>>16)&255, g:(n>>8)&255, b:n&255 };
+    }
+    function rgbToHex(r,g,b){
+      return "#" + [r,g,b].map(v => clamp(Math.round(v),0,255).toString(16).padStart(2,"0")).join("");
+    }
+    function rgbToHsl(r,g,b){
+      r/=255; g/=255; b/=255;
+      const max=Math.max(r,g,b), min=Math.min(r,g,b);
+      let h,s,l=(max+min)/2;
+      const d=max-min;
+      if(d===0){ h=0; s=0; }
+      else{
+        s = l>0.5 ? d/(2-max-min) : d/(max+min);
+        switch(max){
+          case r: h=(g-b)/d + (g<b?6:0); break;
+          case g: h=(b-r)/d + 2; break;
+          case b: h=(r-g)/d + 4; break;
+        }
+        h/=6;
+      }
+      return {h,s,l};
+    }
+    function hslToRgb(h,s,l){
+      const hue2rgb=(p,q,t)=>{ if(t<0)t+=1; if(t>1)t-=1; if(t<1/6)return p+(q-p)*6*t; if(t<1/2)return q; if(t<2/3)return p+(q-p)*(2/3 - t)*6; return p; };
+      let r,g,b;
+      if(s===0){ r=g=b=l; }
+      else{
+        const q = l<0.5 ? l*(1+s) : l + s - l*s;
+        const p = 2*l - q;
+        r = hue2rgb(p,q,h+1/3);
+        g = hue2rgb(p,q,h);
+        b = hue2rgb(p,q,h-1/3);
+      }
+      return { r:Math.round(r*255), g:Math.round(g*255), b:Math.round(b*255) };
+    }
+    function adjustHex(hex, vibrancePct, contrastPct){
+      const {r,g,b} = hexToRgb(hex);
+      const c = contrastPct/100;
+      const rc = clamp((r-128)*c + 128, 0, 255);
+      const gc = clamp((g-128)*c + 128, 0, 255);
+      const bc = clamp((b-128)*c + 128, 0, 255);
+      let {h,s,l} = rgbToHsl(rc,gc,bc);
+      const vib = vibrancePct/100;
+      s = clamp(s + (vib-1)*(1-s), 0, 1);
+      const out = hslToRgb(h,s,l);
+      return rgbToHex(out.r,out.g,out.b);
+    }
+
+    
+    function slug(s){
+      return String(s||"").trim().toLowerCase()
+        .replace(/&/g, " and ").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+    }
+    function resolveImagePath(candidates){
+      return new Promise((resolve) => {
+        if (!candidates.length) return resolve(null);
+        let i = 0;
+        const img = new Image();
+        img.onload = () => resolve(candidates[i]);
+        img.onerror = () => { i++; (i < candidates.length) ? img.src = candidates[i] : resolve(null); };
+        img.src = candidates[i];
+      });
+    }
+
+    
+    const rows = await d3.csv("manhattan_colors.csv");
+    const byCode = new Map();
+    for (const r of rows){
+      const code = (r.nta2020||"").toUpperCase().trim();
+      if(!code) continue;
+      const name = (r.ntaname||r.name||"").trim();
+      const hex  = (r.hex||"#777a80").trim();
+
+      const baseSlug = slug(name);
+      const candidates = [];
+      if (r.filename && r.filename.trim()) candidates.push(`${TILE_DIR}/${r.filename.trim()}`);
+      candidates.push(
+        `${TILE_DIR}/${code}_${baseSlug}.jpg`,
+        `${TILE_DIR}/${code}_${baseSlug}.jpeg`,
+        `${TILE_DIR}/${code}_${baseSlug}.png`,
+        `${TILE_DIR}/${code}.jpg`,
+        `${TILE_DIR}/${code}.jpeg`,
+        `${TILE_DIR}/${code}.png`
+      );
+
+      byCode.set(code, { name, hex, candidates });
+    }
+
+  
+    const geo = await fetch("https://data.cityofnewyork.us/resource/9nt8-h7nd.geojson?$limit=5000").then(r=>r.json());
+    const features = (geo.features||[]).filter(f=>{
+      const p=f.properties||{};
+      const code=(p.nta2020||p.NTA2020||p.ntacode||p.NTACode||"").toString().trim().toUpperCase();
+      return code.startsWith("MN");
+    });
+
+    
+    const tip = d3.select("#tooltip");
+    function placeTooltip(x, y){
+      const el = tip.node();
+      const pad = 8, offset = 14;
+      const rect = el.getBoundingClientRect();
+      const vw = window.innerWidth, vh = window.innerHeight;
+
+      let left = Math.min(Math.max(x - rect.width/2, pad), vw - rect.width - pad);
+      let top = y - rect.height - offset;
+      if (top < pad) {
+        top = Math.min(y + offset, vh - rect.height - pad);
+      }
+      tip.style("left", left + "px").style("top", top + "px");
+    }
+
+    
+    const mapEl = document.getElementById("map");
+    const size = () => [mapEl.clientWidth, mapEl.clientHeight];
+    let [w,h] = size();
+    const svg = d3.select("#map").append("svg").attr("width", w).attr("height", h);
+    const gZoom = svg.append("g");
+    gZoom.append("rect").attr("x",0).attr("y",0).attr("width",w).attr("height",h)
+         .attr("fill","transparent").style("pointer-events","all");
+    const gMap = gZoom.append("g").style("pointer-events","all");
+
+    const projection = d3.geoMercator();
+    const path = d3.geoPath(projection);
+    const fc = {type:"FeatureCollection", features};
+    projection.fitSize([w,h], fc);
+
+    
+    const polys = gMap.selectAll(".nta")
+      .data(features)
+      .enter().append("path")
+      .attr("class","nta")
+      .attr("d", path)
+      .each(function(d){
+        const p = d.properties||{};
+        const code=(p.nta2020||p.NTA2020||p.ntacode||p.NTACode||"").toString().trim().toUpperCase();
+        const name=(p.ntaname||p.NTAName||"").toString();
+        const meta = byCode.get(code) || { name, hex:"#777a80", candidates:[] };
+        const boosted = adjustHex(meta.hex, BOOST_VIBRANCE, BOOST_CONTRAST);
+
+        this.dataset.code = code;
+        this.dataset.name = meta.name || name;
+        this.dataset.hexBase = meta.hex;
+        this.dataset.hexBoost = boosted;
+        this.dataset.candidates = JSON.stringify(meta.candidates);
+      })
+      .attr("fill", function(){ return this.dataset.hexBoost; }) // Boost ON by default
+      .on("mousemove", async function(event){
+        const using = d3.select(this).attr("fill");
+        const name = this.dataset.name || "Unknown";
+        const candidates = JSON.parse(this.dataset.candidates || "[]");
+
+        if (!this.dataset.imgResolved){
+          const found = await resolveImagePath(candidates);
+          this.dataset.imgResolved = found || "";
+        }
+        const imgTag = this.dataset.imgResolved
+          ? `<img src="${this.dataset.imgResolved}" alt="${name}">`
+          : `<div style="color:#a6a6b8;margin-top:8px;">(image not found)</div>`;
+
+        tip.html(`
+          <div class="top"><span class="sw" style="background:${using}"></span>
+            <div class="name">${name}</div></div>
+          <div>HEX: <code>${using}</code></div>
+          ${imgTag}
+        `).style("display","block");
+
+        placeTooltip(event.clientX, event.clientY);
+      })
+      .on("mouseleave", () => tip.style("display","none"));
+
+    
+    const zoom = d3.zoom()
+      .scaleExtent([0.8, 10])
+      .translateExtent([[-w,-h],[2*w,2*h]])
+      .on("zoom", (ev)=> gMap.attr("transform", ev.transform));
+    svg.call(zoom).on("dblclick.zoom", null);
+    svg.on("dblclick", (ev)=>{ const p=d3.pointer(ev, svg.node()); svg.transition().duration(300).call(zoom.scaleBy, 1.4, p); });
+
+    
+    const boostToggle = document.getElementById("boostToggle");
+    const resetView = document.getElementById("resetView");
+    function applyMode(){
+      const boosted = boostToggle.checked;
+      polys.attr("fill", function(){ return boosted ? this.dataset.hexBoost : this.dataset.hexBase; });
+    }
+    boostToggle.addEventListener("change", applyMode);
+    resetView.addEventListener("click", ()=> svg.transition().duration(350).call(zoom.transform, d3.zoomIdentity));
+
+    
+    window.addEventListener("resize", ()=>{
+      [w,h] = size();
+      svg.attr("width", w).attr("height", h);
+      gZoom.select("rect").attr("width", w).attr("height", h);
+      projection.fitSize([w,h], fc);
+      polys.attr("d", path);
+      svg.call(zoom.transform, d3.zoomIdentity);
+      applyMode();
+    });
+
+    applyMode(); 
+  })();
+  </script>
+</body>
+</html>
